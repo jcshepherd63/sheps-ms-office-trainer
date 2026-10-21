@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#17607d">
+<title>Microsoft Office, from scratch</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+:root{--bg:#f4f6f9;--sf:#fff;--tx:#14213d;--mu:#566174;--ac:#17607d;--ok:#2b7a4b;--bd:#d6dce6;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1520;--sf:#18202e;--tx:#e8edf5;--mu:#9aa6ba;--ac:#6bbcdb;--ok:#5ec28a;--bd:#2a3547;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0f1520;--sf:#18202e;--tx:#e8edf5;--mu:#9aa6ba;--ac:#6bbcdb;--ok:#5ec28a;--bd:#2a3547;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:17px/1.6 "Atkinson Hyperlegible",system-ui,"Segoe UI",sans-serif}
+header{max-width:1080px;margin:0 auto;padding:28px 20px 8px}
+h1{font-size:30px;line-height:1.2;margin:0 0 4px}
+header p{margin:0 0 14px;color:var(--mu)}
+.bar{height:10px;background:var(--bd);border-radius:5px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--ok);transition:width .3s}
+#pt{margin:6px 0 0;font-size:15px;color:var(--mu)}
+.wrap{display:grid;grid-template-columns:280px 1fr;gap:24px;max-width:1080px;margin:0 auto;padding:12px 20px 48px}
+@media(max-width:760px){.wrap{grid-template-columns:1fr}main{padding:20px!important}}
+.wk{margin:16px 0 4px;font-weight:700;font-size:15px;color:var(--mu)}
+.wk:first-child{margin-top:0}
+.soon{margin:0 0 0 10px;font-size:15px;color:var(--mu)}
+.ls{display:flex;gap:8px;width:100%;text-align:left;background:none;border:0;border-radius:6px;padding:8px 10px;color:var(--tx);font:inherit;font-size:16px;cursor:pointer}
+.ls:hover{background:var(--sf)}
+.ls.on{background:var(--sf);box-shadow:inset 3px 0 var(--ac)}
+.ck{flex:none;width:2.6em;color:var(--mu);font-size:14px;padding-top:2px}
+.ck.d{color:var(--ok);font-weight:700}
+button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--ac);outline-offset:2px}
+main{background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:32px;min-width:0}
+main h2{font-size:20px;margin:28px 0 8px}
+main h3{font-size:24px;line-height:1.25;margin:0}
+.meta{color:var(--mu);margin:2px 0 18px;font-size:15px}
+main p,main ul{max-width:68ch}
+main li{margin:6px 0}
+.tw{overflow-x:auto;margin:14px 0}
+table{border-collapse:collapse;font-size:15px}
+th,td{border:1px solid var(--bd);padding:6px 12px;text-align:left;white-space:nowrap}
+th{background:var(--bg)}
+code{background:var(--bg);border:1px solid var(--bd);border-radius:4px;padding:1px 6px;font:14px ui-monospace,Consolas,monospace}
+.task{display:flex;gap:12px;padding:12px 0;border-top:1px solid var(--bd);cursor:pointer;max-width:68ch}
+.task input{width:22px;height:22px;flex:none;margin-top:3px;accent-color:var(--ac)}
+.task.x span{color:var(--mu);text-decoration:line-through}
+details{margin-top:20px;border:1px solid var(--bd);border-radius:8px;padding:12px 16px;max-width:68ch}
+summary{cursor:pointer;font-weight:700}
+.pn{display:flex;justify-content:space-between;gap:12px;margin-top:28px}
+.pn button{font:inherit;font-size:16px;background:var(--ac);color:var(--sf);border:0;border-radius:8px;padding:10px 18px;cursor:pointer}
+.pn button.g{background:none;color:var(--ac);border:1px solid var(--ac)}
+@media(prefers-reduced-motion:reduce){.bar i{transition:none}}
+</style>
+</head>
+<body>
+<header>
+<h1>Microsoft Office, from scratch</h1>
+<p>Six weeks to get comfortable with Word, Outlook, Teams, Excel, and PowerPoint. You will run one project the whole way through: a 12-week office relocation.</p>
+<div class="bar"><i id="pb"></i></div>
+<p id="pt"></p>
+</header>
+<div class="wrap"><nav id="nav" aria-label="Lessons"></nav><main id="main"></main></div>
+<script>
+const W=[
+{n:"Week 1",t:"Outlook and Teams",h:6,L:[
+{id:"o1",t:"Outlook: calendar and meeting invites",m:45,b:`Your first job on the relocation project is to get the right people in one room. Outlook’s calendar does that in a few steps.
+
+## What to know
+
+- **Views:** Day, Work Week, Week, and Month. Use Work Week for planning and Month for deadlines.
+- **Required and optional attendees:** Required people must come. Optional people are invited as a courtesy and won’t block the schedule.
+- **Scheduling Assistant:** shows everyone’s free and busy time in one grid, so you pick a slot once instead of emailing back and forth.
+- **Agenda:** put it in the invite body. A meeting with no agenda gets declined or ignored.`,
+k:["Create a 60-minute meeting called “Office Relocation Kickoff” for next Tuesday, with a three-line agenda in the body.","Add one required and one optional attendee. A second email address of your own works.","Open the Scheduling Assistant and look at the attendees’ free and busy times.","Create a 30-minute meeting called “Weekly Status Check-In” that repeats every Thursday.","Set a reminder 15 minutes before the kickoff."]},
+{id:"o2",t:"Outlook: folders, rules, and search",m:45,b:`A real project sends 50 or more emails a day. Folders, rules, and search keep that manageable.
+
+## What to know
+
+- **To vs. Cc:** To means “you need to act.” Cc means “for your information.” Keep to that and people will read what you send.
+- **Reply All:** use it only when everyone on the thread needs your answer.
+- **Rules:** run automatically on incoming mail, for example moving every message with “Relocation” in the subject into a project folder. Find them in Outlook’s settings under Rules.
+- **Search:** type <code>from:name</code>, <code>subject:word</code>, or <code>hasattachments:yes</code> in the search box. You can combine them.
+- **Flags:** flag a message for follow-up and give it a due date so it shows up in your to-do list.`,
+k:["Create a folder called “Relocation Project”.","Create a rule that moves any message with “Relocation” in the subject into that folder.","Send yourself a test email with “Relocation” in the subject and confirm the rule moved it.","Search for emails from one sender that have an attachment, using search operators.","Flag one message for follow-up with a due date.","Create a signature with your name, title, and phone number."]},
+{id:"t1",t:"Teams: channels, chats, and meetings",m:60,b:`Teams is where the project team talks day to day. The main skill is knowing where a message belongs.
+
+## What to know
+
+- **Chat vs. channel:** chats are private. Channels are shared and keep their history, so a new team member can read back. If more than two people will need the answer later, post it in a channel.
+- **@mentions:** type @ and a name to notify one person. Use @channel rarely, because it notifies everyone.
+- **Files tab:** every channel has one. Share a file there instead of attaching it to a message, so everyone works from one copy.
+- **Meetings:** Meet now starts one instantly. Learn mute, camera, chat, raise hand, and Share before your first real meeting.`,
+k:["Create a team called “Office Relocation” with channels named Schedule and Budget. If your organization blocks creating teams, ask your admin or use an existing team.","Post a message in the Schedule channel and @mention one person.","Upload a file to the Budget channel’s Files tab.","Start a Meet now meeting and share a single window, not your whole screen.","Send a one-to-one chat message, then pin that chat."]}]},
+{n:"Week 2",t:"Word",h:4},
+{n:"Week 3",t:"Excel 1: tables and formulas",h:5,L:[
+{id:"x1",t:"Excel: tables, sorting, and formatting",m:60,b:`Below is the relocation task list. Select the whole table, copy it, and paste it into cell A1 of a blank workbook.
+
+<div class="tw"><table><tr><th>Task<th>Owner<th>Days<th>Budget<th>Actual<th>Status
+<tr><td>Lease signed<td>Dana<td>5<td>2000<td>2200<td>Done
+<tr><td>Furniture order<td>Marcus<td>10<td>15000<td>14200<td>Done
+<tr><td>IT cabling<td>Priya<td>8<td>6000<td>7100<td>In Progress
+<tr><td>Network setup<td>Priya<td>6<td>4500<td>0<td>Not Started
+<tr><td>Phone system<td>Marcus<td>4<td>2500<td>0<td>Not Started
+<tr><td>Signage<td>Dana<td>3<td>1200<td>1200<td>Done
+<tr><td>Move day<td>Tom<td>2<td>8000<td>0<td>Not Started
+<tr><td>Final inspection<td>Dana<td>1<td>500<td>0<td>Not Started</table></div>
+
+## What to know
+
+- **Table:** turns a range into a Table that grows on its own, with filter buttons and named columns. Click any cell in the data and press Ctrl+T (Cmd+T on a Mac).
+- **Sort and filter:** use the arrows in the header row. Sorting reorders rows. Filtering hides rows without deleting them.
+- **Freeze panes:** keeps the header row visible as you scroll. It’s on the View tab.
+- **Currency format:** displays numbers as money without changing the value underneath.`,
+k:["Paste the data into A1 of a new workbook and turn it into a Table.","Rename the table to Tasks, using the Table Name box on the Table Design tab.","Sort by Budget, largest to smallest.","Filter to Status = In Progress, then clear the filter.","Format Budget and Actual as currency with no decimals.","Freeze the top row and autofit the column widths by double-clicking a column border."]},
+{id:"x2",t:"Excel: SUM, IF, COUNTIF, and absolute references",m:75,b:`Formulas turn a list into a tool. Work in the Tasks table from the last lesson.
+
+## What to know
+
+- Every formula starts with <code>=</code>.
+- **Table references:** <code>Tasks[Budget]</code> means the whole Budget column. <code>[@Actual]</code> means this row’s Actual. Both update as rows are added.
+- **IF:** <code>=IF(test, value if true, value if false)</code>.
+- **COUNTIF:** counts the rows that match a condition.
+- **Absolute references:** <code>$J$1</code> stays fixed when a formula is copied. Without the dollar signs, the reference shifts.`,
+k:["Outside the table, total the budget with <code>=SUM(Tasks[Budget])</code>. Do the same for Actual.","Add a column called Over Budget? with <code>=IF([@Actual]&gt;[@Budget],&quot;Over&quot;,&quot;OK&quot;)</code>.","Count finished tasks with <code>=COUNTIF(Tasks[Status],&quot;Done&quot;)</code>.","Calculate percent complete: the Done count divided by <code>ROWS(Tasks[Status])</code>, formatted as a percentage.","Type 10% in cell J1 and label it Contingency. Add a column called Contingency with <code>=[@Budget]*$J$1</code>."],
+a:`<ul><li>Total budget: <b>39,700</b></li><li>Total actual: <b>24,700</b></li><li>Done: <b>3</b> of 8, so <b>37.5%</b> complete</li><li>Over budget: <b>2</b> tasks (Lease signed, IT cabling)</li><li>Contingency total: <b>3,970</b></li></ul>`}]},
+{n:"Week 4",t:"Excel 2: lookups and validation",h:5},
+{n:"Week 5",t:"Excel 3: pivots and charts",h:5},
+{n:"Week 6",t:"PowerPoint",h:5,L:[
+{id:"p1",t:"PowerPoint: layouts, themes, and a clean deck",m:60,b:`Your week-8 status update goes to the steering committee, and they will read it in two minutes. Structure matters more than design.
+
+## What to know
+
+- **Layouts:** every slide uses a layout, such as Title, Title and Content, or Two Content. Pick one from Home > Layout instead of drawing text boxes, so spacing and fonts stay consistent.
+- **Slide Master:** View > Slide Master controls fonts, colors, and logo placement for every slide at once. Change it there, not slide by slide.
+- **One message per slide:** the title states the takeaway (“Move day is on schedule”), not the topic (“Schedule”).
+- **Limits:** about 6 lines per slide and text at 24 pt or larger. A slide with more than that is a document.`,
+k:["Create a new presentation and apply a built-in theme from the Design tab.","Build a 5-slide deck: Title, Status Summary, Schedule, Budget, and Next Steps. Use the Title and Content layout for the middle three.","Rewrite each slide title as a full-sentence takeaway.","Open Slide Master and change the title font and color once. Confirm every slide updates.","Add slide numbers from the Insert tab.","Run the show with Slide Show > From Beginning and step through with the arrow keys."]},
+{id:"p2",t:"PowerPoint: charts from Excel and presenting",m:75,b:`The week-8 numbers already live in your Excel Tasks table. Bring them into the deck without retyping.
+
+## What to know
+
+- **Paste options:** after pasting a chart from Excel, choose how it travels. Embed Workbook gives the chart its own copy of the data, which is safest when you send the deck. Link Data updates when the Excel file changes but breaks if the file moves.
+- **Chart choice:** bars compare categories, such as budget vs. actual by task. Lines show change over time. A pie works only for two to four parts of a whole.
+- **Speaker notes:** write what you will say in the Notes pane under the slide, not on the slide.
+- **Presenter View:** you see your notes and the next slide while the audience sees only the current slide. Find it on the Slide Show tab.`,
+k:["In Excel, select the Task, Budget, and Actual columns (hold Ctrl to select columns that aren’t next to each other) and insert a clustered column chart.","Copy the chart onto your Budget slide with Use Destination Theme and Embed Workbook.","Retitle the Budget slide with the key number from the Excel lesson: spending is at 62% of budget with 37.5% of tasks done.","Add speaker notes of two sentences each to the Schedule and Budget slides.","Open Presenter View and rehearse the whole deck aloud with a timer. Aim for under 5 minutes.","Export the deck as a PDF from File > Export, ready to send to the committee."],
+a:`<ul><li>Budget spent: 24,700 ÷ 39,700 = <b>62%</b></li><li>Tasks done: 3 of 8 = <b>37.5%</b></li><li>The gap between those two numbers is the story for the committee.</li></ul>`}]}];
+
+const LS=W.flatMap((w,wi)=>(w.L||[]).map(l=>({...l,wi})));
+let S={},cur=LS[0].id;
+try{S=JSON.parse(localStorage.getItem("msapp1")||"{}");if(LS.some(l=>l.id==S._c))cur=S._c}catch(e){S={}}
+const save=()=>{try{localStorage.setItem("msapp1",JSON.stringify(S))}catch(e){}};
+const n=l=>(S[l.id]||[]).length;
+const $=id=>document.getElementById(id);
+const inl=s=>s.replace(/\*\*(.+?)\*\*/g,"<b>$1</b>");
+const md=s=>s.split(/\n\n/).map(b=>{b=b.trim();
+if(b[0]=="<")return b;
+if(b.startsWith("## "))return"<h2>"+b.slice(3)+"</h2>";
+if(b[0]=="-")return"<ul>"+b.split("\n").map(x=>"<li>"+inl(x.slice(2))+"</li>").join("")+"</ul>";
+return"<p>"+inl(b)+"</p>"}).join("");
+
+function nav(){
+$("nav").innerHTML=W.map(w=>`<div class="wk">${w.n}: ${w.t} (${w.h} hrs)</div>`+(w.L?w.L.map(l=>{const d=n(l)==l.k.length;
+return`<button class="ls${l.id==cur?" on":""}" data-go="${l.id}"><span class="ck${d?" d":""}">${d?"Done":n(l)+"/"+l.k.length}</span><span>${l.t}</span></button>`}).join(""):`<div class="soon">Coming soon</div>`)).join("");
+}
+function prog(){
+const t=LS.reduce((a,l)=>a+l.k.length,0),d=LS.reduce((a,l)=>a+n(l),0);
+$("pb").style.width=(100*d/t)+"%";
+$("pt").textContent=d+" of "+t+" tasks done";
+}
+function view(){
+const i=LS.findIndex(l=>l.id==cur),l=LS[i],c=S[l.id]||[];
+$("main").innerHTML=`<h3>${l.t}</h3><p class="meta">${W[l.wi].n} · about ${l.m} minutes</p>${md(l.b)}<h2>Do this</h2>`+
+l.k.map((t,j)=>`<label class="task${c.includes(j)?" x":""}"><input type="checkbox" data-i="${j}"${c.includes(j)?" checked":""}><span>${t}</span></label>`).join("")+
+(l.a?`<details><summary>Check your answers</summary>${l.a}</details>`:"")+
+`<div class="pn">${i>0?`<button class="g" data-go="${LS[i-1].id}">Previous lesson</button>`:"<span></span>"}${i<LS.length-1?`<button data-go="${LS[i+1].id}">Next lesson</button>`:"<span></span>"}</div>`;
+}
+document.addEventListener("click",e=>{const b=e.target.closest("[data-go]");if(!b)return;
+cur=b.dataset.go;S._c=cur;save();nav();view();window.scrollTo(0,0)});
+document.addEventListener("change",e=>{const t=e.target;if(t.dataset.i==null)return;
+const a=new Set(S[cur]||[]),j=+t.dataset.i;t.checked?a.add(j):a.delete(j);
+S[cur]=[...a];t.closest(".task").classList.toggle("x",t.checked);save();nav();prog()});
+nav();prog();view();
+</script>
+<script>if("serviceWorker"in navigator)addEventListener("load",()=>navigator.serviceWorker.register("sw.js"))</script>
+</body>
+</html>
