@@ -59,14 +59,14 @@ summary{cursor:pointer;font-weight:700}
 <body>
 <header>
 <h1>Microsoft Office, from scratch</h1>
-<p>Six weeks to get comfortable with Word, Outlook, Teams, Excel, and PowerPoint. You will run one project the whole way through: a 12-week office relocation.</p>
+<p>Six chapters to get comfortable with Word, Outlook, Teams, Excel, and PowerPoint. You will run one project the whole way through: a 12-week office relocation.</p>
 <div class="bar"><i id="pb"></i></div>
 <p id="pt"></p>
 </header>
 <div class="wrap"><nav id="nav" aria-label="Lessons"></nav><main id="main"></main></div>
 <script>
 const W=[
-{n:"Week 1",t:"Outlook and Teams",h:6,L:[
+{n:"Chapter 1",t:"Outlook and Teams",h:6,L:[
 {id:"o1",t:"Outlook: calendar and meeting invites",m:45,b:`Your first job on the relocation project is to get the right people in one room. Outlook’s calendar does that in a few steps.
 
 ## What to know
@@ -95,8 +95,8 @@ k:["Create a folder called “Relocation Project”.","Create a rule that moves 
 - **Files tab:** every channel has one. Share a file there instead of attaching it to a message, so everyone works from one copy.
 - **Meetings:** Meet now starts one instantly. Learn mute, camera, chat, raise hand, and Share before your first real meeting.`,
 k:["Create a team called “Office Relocation” with channels named Schedule and Budget. If your organization blocks creating teams, ask your admin or use an existing team.","Post a message in the Schedule channel and @mention one person.","Upload a file to the Budget channel’s Files tab.","Start a Meet now meeting and share a single window, not your whole screen.","Send a one-to-one chat message, then pin that chat."]}]},
-{n:"Week 2",t:"Word",h:4},
-{n:"Week 3",t:"Excel 1: tables and formulas",h:5,L:[
+{n:"Chapter 2",t:"Word",h:4},
+{n:"Chapter 3",t:"Excel 1: tables and formulas",h:5,L:[
 {id:"x1",t:"Excel: tables, sorting, and formatting",m:60,b:`Below is the relocation task list. Select the whole table, copy it, and paste it into cell A1 of a blank workbook.
 
 <div class="tw"><table><tr><th>Task<th>Owner<th>Days<th>Budget<th>Actual<th>Status
@@ -127,9 +127,53 @@ k:["Paste the data into A1 of a new workbook and turn it into a Table.","Rename 
 - **Absolute references:** <code>$J$1</code> stays fixed when a formula is copied. Without the dollar signs, the reference shifts.`,
 k:["Outside the table, total the budget with <code>=SUM(Tasks[Budget])</code>. Do the same for Actual.","Add a column called Over Budget? with <code>=IF([@Actual]&gt;[@Budget],&quot;Over&quot;,&quot;OK&quot;)</code>.","Count finished tasks with <code>=COUNTIF(Tasks[Status],&quot;Done&quot;)</code>.","Calculate percent complete: the Done count divided by <code>ROWS(Tasks[Status])</code>, formatted as a percentage.","Type 10% in cell J1 and label it Contingency. Add a column called Contingency with <code>=[@Budget]*$J$1</code>."],
 a:`<ul><li>Total budget: <b>39,700</b></li><li>Total actual: <b>24,700</b></li><li>Done: <b>3</b> of 8, so <b>37.5%</b> complete</li><li>Over budget: <b>2</b> tasks (Lease signed, IT cabling)</li><li>Contingency total: <b>3,970</b></li></ul>`}]},
-{n:"Week 4",t:"Excel 2: lookups and validation",h:5},
-{n:"Week 5",t:"Excel 3: pivots and charts",h:5},
-{n:"Week 6",t:"PowerPoint",h:5,L:[
+{n:"Chapter 4",t:"Excel 2: lookups and validation",h:5,L:[
+{id:"x3",t:"Excel: XLOOKUP and SUMIFS",m:75,b:`Every task lists an owner, but the project also needs to know which department each owner belongs to. A lookup pulls that in without retyping. Paste this table onto a new sheet.
+
+<div class="tw"><table><tr><th>Owner<th>Department
+<tr><td>Dana<td>Facilities
+<tr><td>Marcus<td>Facilities
+<tr><td>Priya<td>IT
+<tr><td>Tom<td>Operations</table></div>
+
+## What to know
+
+- **XLOOKUP:** <code>=XLOOKUP(what to find, where to look, what to return, text if not found)</code>. It is available in Microsoft 365 and Excel 2021 or later.
+- **Why use a lookup:** if Priya changes departments, you fix one cell in the Team table and every task updates.
+- **SUMIFS:** adds up a column for only the rows that match a condition, such as all the budget that belongs to one owner.
+- **Typos break lookups.** “Dana ” with a trailing space won’t match “Dana”. The next lesson shows how to prevent that.`,
+k:["Turn the table above into a Table on its own sheet and name it Team.","Back in Tasks, add a column called Department with <code>=XLOOKUP([@Owner],Team[Owner],Team[Department],&quot;Not found&quot;)</code>.","Confirm no row shows Not found.","Next to the table, total each owner’s budget with <code>=SUMIFS(Tasks[Budget],Tasks[Owner],&quot;Dana&quot;)</code>. Repeat for Marcus, Priya, and Tom.","List the three departments in separate cells. Use SUMIFS with a cell reference to total Actual for each one, for example <code>=SUMIFS(Tasks[Actual],Tasks[Department],M2)</code> if the department name is in M2."],
+a:`<ul><li>Budget by owner: Dana <b>3,700</b>, Marcus <b>17,500</b>, Priya <b>10,500</b>, Tom <b>8,000</b> (total 39,700)</li><li>Actual by department: Facilities <b>17,600</b>, IT <b>7,100</b>, Operations <b>0</b> (total 24,700)</li></ul>`},
+{id:"x4",t:"Excel: data validation and conditional formatting",m:60,b:`A status report that anyone can type anything into stops being reliable. Validation limits what can be entered. Conditional formatting makes problems visible without reading every row.
+
+## What to know
+
+- **Data validation:** on the Data tab. A List rule gives a cell a drop-down, so “Done” can never become “done.” or “Finished.”
+- **Why it matters:** formulas like COUNTIF only count exact matches. One misspelled status and your percent complete is wrong.
+- **Conditional formatting:** on the Home tab. It colors cells automatically when they meet a rule, and updates as the data changes.
+- **Data bars:** draw a bar inside each cell so you can compare sizes at a glance.`,
+k:["Select the Status column and add a validation List rule with the source <code>Not Started,In Progress,Done</code>.","Try typing Finished into a Status cell and confirm Excel rejects it. Press Esc to cancel.","Add a validation rule to the Days column that allows only whole numbers between 1 and 60.","Add a conditional formatting rule that fills the Over Budget? column red when a cell equals Over.","Add a rule that fills Status green when a cell equals Done.","Add data bars to the Budget column."]}]},
+{n:"Chapter 5",t:"Excel 3: pivots and charts",h:5,L:[
+{id:"x5",t:"Excel: pivot tables",m:75,b:`A pivot table summarizes a table by category with no formulas. It is the fastest way to answer “how much by owner?” or “how many by status?”
+
+## What to know
+
+- **Create one:** click any cell in Tasks, then Insert > PivotTable.
+- **The four areas:** Rows and Columns set the categories. Values holds the numbers to add up. Filters narrows the whole pivot.
+- **Value settings:** numbers sum by default and text counts by default. Right-click a value to change it to average, minimum, or maximum.
+- **Refresh:** a pivot does not update on its own. After the source data changes, right-click the pivot and choose Refresh.`,
+k:["Insert a PivotTable from the Tasks table onto a new sheet.","Put Owner in Rows, and Budget and Actual in Values.","Drag Department above Owner in Rows and watch the totals roll up.","Remove Department. Put Status in Columns and Task in Values to count tasks by owner and status.","Change one Actual value in Tasks, then refresh the pivot and confirm the total changes. Change the value back."],
+a:`<ul><li>Budget and Actual by owner: Dana <b>3,700 / 3,400</b>, Marcus <b>17,500 / 14,200</b>, Priya <b>10,500 / 7,100</b>, Tom <b>8,000 / 0</b></li><li>Grand total: <b>39,700 / 24,700</b></li><li>Tasks by status: Done <b>3</b>, In Progress <b>1</b>, Not Started <b>4</b> (total 8)</li></ul>`},
+{id:"x6",t:"Excel: charts and a one-page dashboard",m:60,b:`A chart should make the finding obvious before anyone reads a number. The last Excel skill is putting your best charts and key totals on one page.
+
+## What to know
+
+- **PivotChart:** a chart tied to a pivot table. Click inside the pivot, then PivotTable Analyze > PivotChart. It changes when the pivot changes.
+- **Title with the finding:** “IT cabling is $1,100 over budget” tells the reader what to look at. “Budget vs. Actual” does not.
+- **Remove clutter:** delete gridlines you don’t need, skip 3-D effects, and label the bars directly.
+- **One page:** a dashboard is a sheet with a few totals and two or three charts that prints on a single page.`,
+k:["Create a clustered column PivotChart of Budget and Actual by Owner.","Retitle it with a finding, such as “IT cabling is $1,100 over budget.”","Remove the gridlines and add data labels.","Create a second chart showing the count of tasks by Status.","Add a sheet called Dashboard. Place both charts on it with your total budget, total actual, and percent complete from the formula lesson.","Open File > Print and confirm the Dashboard fits on one page."]}]},
+{n:"Chapter 6",t:"PowerPoint",h:5,L:[
 {id:"p1",t:"PowerPoint: layouts, themes, and a clean deck",m:60,b:`Your week-8 status update goes to the steering committee, and they will read it in two minutes. Structure matters more than design.
 
 ## What to know
