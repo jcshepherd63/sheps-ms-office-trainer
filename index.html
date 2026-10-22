@@ -58,6 +58,12 @@ summary{cursor:pointer;font-weight:700}
 .pn{display:flex;justify-content:space-between;gap:12px;margin-top:28px}
 .pn button{font:inherit;font-size:16px;background:var(--ac);color:var(--sf);border:0;border-radius:8px;padding:10px 18px;cursor:pointer}
 .pn button.g{background:none;color:var(--ac);border:1px solid var(--ac)}
+.up{margin-top:28px;border-top:1px solid var(--bd)}
+.up input{font:inherit;font-size:16px;max-width:100%}
+.res{margin:12px 0;padding:0;list-style:none;max-width:68ch}
+.res li{margin:6px 0}
+.ok{color:var(--ok)}
+.no{color:#d64545}
 @media(prefers-reduced-motion:reduce){.bar i{transition:none}}
 </style>
 </head>
@@ -69,6 +75,7 @@ summary{cursor:pointer;font-weight:700}
 <p id="pt"></p>
 </header>
 <div class="wrap"><nav id="nav" aria-label="Lessons"></nav><main id="main"></main></div>
+<script src="jszip.min.js"></script>
 <script>
 const W=[
 {n:"Chapter 1",t:"Outlook and Teams",h:6,L:[
@@ -254,6 +261,68 @@ if(b.startsWith("## "))return"<h2>"+b.slice(3)+"</h2>";
 if(b[0]=="-")return"<ul>"+b.split("\n").map(x=>"<li>"+inl(x.slice(2))+"</li>").join("")+"</ul>";
 return"<p>"+inl(b)+"</p>"}).join("");
 
+const C={
+x1:[
+{k:0,m:"Task data pasted into a Table",t:x=>x.tables.length>0&&x.txt("Lease signed")},
+{k:1,m:"Table named Tasks",t:x=>x.tables.includes("Tasks")},
+{k:2,m:"Budget sorted largest to smallest",t:x=>{const b=x.col("Budget");return b.length>7&&b.every((v,i)=>!i||v<=b[i-1])}},
+{k:4,m:"Budget and Actual in currency format",t:x=>/formatCode="[^"]*\$/.test(x.st)},
+{k:5,m:"Top row frozen",t:x=>/<pane\b[^>]*state="frozen"/.test(x.sx)&&/<pane\b[^>]*ySplit="1"/.test(x.sx)}],
+x2:[
+{k:0,m:"SUM totals: budget 39,700 and actual 24,700",t:x=>x.fx(/SUM\(/)&&x.num(39700)&&x.num(24700)},
+{k:1,m:"Over Budget? column with an IF formula",t:x=>x.txt("Over Budget?")&&x.fx(/IF\(.*Over/)},
+{k:2,m:"COUNTIF formula counting Done",t:x=>x.fx(/COUNTIF\(.*Done/)},
+{k:3,m:"Percent complete of 37.5%",t:x=>x.num(.375)},
+{k:4,m:"Contingency column using $J$1 at 10%",t:x=>x.fx(/\$J\$1/)&&x.num(.1)}],
+x3:[
+{k:0,m:"Table named Team",t:x=>x.tables.includes("Team")&&x.txt("Operations")},
+{k:1,m:"Department column using XLOOKUP",t:x=>x.fx(/XLOOKUP\(/)},
+{k:2,m:"No Not found results",t:x=>x.fx(/XLOOKUP\(/)&&!x.txt("Not found")},
+{k:3,m:"SUMIFS budget by owner: 3,700, 17,500, 10,500, 8,000",t:x=>x.fx(/SUMIFS\(/)&&[3700,17500,10500].every(n=>x.num(n))},
+{k:4,m:"SUMIFS actual by department: Facilities 17,600",t:x=>x.fx(/SUMIFS\(.*Actual/)&&x.num(17600)}],
+x4:[
+{k:0,m:"Status drop-down list",t:x=>/type="list"[^>]*>\s*<formula1>[^<]*Not Started/.test(x.sx)},
+{k:2,m:"Days limited to whole numbers 1 to 60",t:x=>/type="whole"[^>]*>\s*<formula1>1<[^>]*>\s*<formula2>60</.test(x.sx)},
+{k:3,m:"Red highlight when Over Budget? equals Over",t:x=>/<cfRule\b[^>]*type="cellIs"[^>]*>\s*<formula>"Over"/.test(x.sx)},
+{k:4,m:"Green highlight when Status equals Done",t:x=>/<cfRule\b[^>]*type="cellIs"[^>]*>\s*<formula>"Done"/.test(x.sx)},
+{k:5,m:"Data bars on Budget",t:x=>/<dataBar\b/.test(x.sx)}],
+x5:[
+{k:0,m:"PivotTable created",t:x=>x.pv.length>0},
+{k:1,m:"Pivot with Budget and Actual values",t:x=>x.pv.some(p=>/<dataField[^>]*name="[^"]*Budget/.test(p)&&/<dataField[^>]*name="[^"]*Actual/.test(p))},
+{k:3,m:"Pivot with Count of Task",t:x=>x.pv.some(p=>/name="Count of Task"/.test(p))}],
+x6:[
+{k:0,m:"Column PivotChart",t:x=>x.ch.some(c=>/barDir val="col"/.test(c)&&/pivotSource/.test(c))},
+{k:1,m:"Chart title mentions the $1,100 finding",t:x=>x.ch.some(c=>/<a:t>[^<]*1,100/.test(c))},
+{k:2,m:"Chart with no gridlines and data labels",t:x=>x.ch.some(c=>!/majorGridlines/.test(c)&&/showVal val="1"/.test(c))},
+{k:3,m:"Second chart as a clustered bar",t:x=>x.ch.length>1&&x.ch.some(c=>/barDir val="bar"/.test(c))},
+{k:4,m:"Dashboard sheet with two or more charts",t:x=>x.wb.includes('name="Dashboard"')&&x.ch.length>1},
+{k:5,m:"Page set to fit on one page",t:x=>/fitToPage="1"/.test(x.sx)}]};
+async function rd(f){
+const z=await JSZip.loadAsync(f),P=s=>new DOMParser().parseFromString(s,"application/xml"),N=Object.keys(z.files);
+const T=n=>z.file(n)?z.file(n).async("string"):Promise.resolve(""),G=re=>Promise.all(N.filter(n=>re.test(n)).sort().map(T));
+const sst=await T("xl/sharedStrings.xml"),ss=sst?[...P(sst).getElementsByTagName("si")].map(s=>[...s.getElementsByTagName("t")].map(t=>t.textContent).join("")):[];
+const sh=await G(/^xl\/worksheets\/sheet\d+\.xml$/);
+const cells=sh.flatMap((x,i)=>[...P(x).getElementsByTagName("c")].map(c=>{const t=c.getAttribute("t"),e=c.getElementsByTagName("v")[0],v=e?e.textContent:null,fe=c.getElementsByTagName("f")[0];
+return{i,r:c.getAttribute("r"),f:fe?fe.textContent:null,n:(!t||t=="n")&&v!==null?+v:null,s:t=="s"&&v!==null?ss[+v]:(t=="str"||t=="inlineStr")?(v!==null?v:c.textContent):null}}));
+const fs=cells.map(c=>c.f).filter(Boolean);
+return{tables:(await G(/^xl\/tables\/table\d+\.xml$/)).map(x=>P(x).documentElement.getAttribute("name")),
+pv:await G(/^xl\/pivotTables\/pivotTable\d+\.xml$/),ch:await G(/^xl\/charts\/chart\d+\.xml$/),
+st:await T("xl/styles.xml"),wb:await T("xl/workbook.xml"),sx:sh.join("\n"),
+fx:re=>fs.some(f=>re.test(f)),
+num:n=>cells.some(c=>c.n!==null&&Math.abs(c.n-n)<.005),
+txt:s=>cells.some(c=>c.s&&c.s.toLowerCase()==s.toLowerCase()),
+col:h=>{const k=cells.find(c=>c.s==h);if(!k)return[];const L=k.r.replace(/\d/g,""),R=+k.r.replace(/\D/g,""),o=[];for(let n=R+1;;n++){const c=cells.find(c=>c.i==k.i&&c.r==L+n);if(!c||c.n===null)break;o.push(c.n)}return o}}}
+async function grade(f){
+const R=$("res");if(!f)return;R.innerHTML="<li>Checking…</li>";
+try{if(typeof JSZip=="undefined")throw 0;
+const x=await rd(f),ck=C[cur],a=new Set(S[cur]||[]);let p=0;
+R.innerHTML=ck.map(c=>{let ok=false;try{ok=!!c.t(x)}catch(e){}
+if(ok){p++;a.add(c.k)}
+return`<li class="${ok?"ok":"no"}">${ok?"✓":"✗"} ${c.m}</li>`}).join("")+`<li><b>${p} of ${ck.length} checks passed.</b> Tasks not listed here you check off by hand.</li>`;
+S[cur]=[...a];save();
+document.querySelectorAll(".task input").forEach(i=>{const on=a.has(+i.dataset.i);i.checked=on;i.closest(".task").classList.toggle("x",on)});
+nav();prog()
+}catch(e){R.innerHTML=`<li class="no">Couldn’t read that file. Choose an .xlsx saved from Excel. The checker also needs to load once while you are online.</li>`}}
 function nav(){
 $("nav").innerHTML=W.map(w=>`<div class="wk">${w.n}: ${w.t} (${w.h} hrs)</div>`+(w.L?w.L.map(l=>{const d=n(l)==l.k.length;
 return`<button class="ls${l.id==cur?" on":""}" data-go="${l.id}"><span class="ck${d?" d":""}">${d?"Done":n(l)+"/"+l.k.length}</span><span>${l.t}</span></button>`}).join(""):`<div class="soon">Coming soon</div>`)).join("");
@@ -267,12 +336,13 @@ function view(){
 const i=LS.findIndex(l=>l.id==cur),l=LS[i],c=S[l.id]||[];
 $("main").innerHTML=`<h3>${l.t}</h3><p class="meta">${W[l.wi].n} · about ${l.m} minutes</p>${md(l.b)}<h2>Do this</h2><p class="meta">Select Show me how under any task for step-by-step instructions. They are written for the Microsoft 365 desktop apps, and menu names can differ a little on Mac, the web, and iPad.</p>`+
 l.k.map((t,j)=>{const s=((H[l.id]||[])[j]||"").split("|").filter(Boolean);return`<div class="tk"><label class="task${c.includes(j)?" x":""}"><input type="checkbox" data-i="${j}"${c.includes(j)?" checked":""}><span>${t}</span></label>${s.length?`<details class="how"><summary>Show me how</summary><ol>${s.map(x=>"<li>"+x+"</li>").join("")}</ol></details>`:""}</div>`}).join("")+
+(C[l.id]?`<div class="up"><h2>Check my work</h2><p class="meta">Save your workbook in Excel, then choose it here. The file is read on this device and is never uploaded.</p><input type="file" accept=".xlsx" id="fu"><ul class="res" id="res"></ul></div>`:"")+
 (l.a?`<details><summary>Check your answers</summary>${l.a}</details>`:"")+
 `<div class="pn">${i>0?`<button class="g" data-go="${LS[i-1].id}">Previous lesson</button>`:"<span></span>"}${i<LS.length-1?`<button data-go="${LS[i+1].id}">Next lesson</button>`:"<span></span>"}</div>`;
 }
 document.addEventListener("click",e=>{const b=e.target.closest("[data-go]");if(!b)return;
 cur=b.dataset.go;S._c=cur;save();nav();view();window.scrollTo(0,0)});
-document.addEventListener("change",e=>{const t=e.target;if(t.dataset.i==null)return;
+document.addEventListener("change",e=>{const t=e.target;if(t.id=="fu")return grade(t.files[0]);if(t.dataset.i==null)return;
 const a=new Set(S[cur]||[]),j=+t.dataset.i;t.checked?a.add(j):a.delete(j);
 S[cur]=[...a];t.closest(".task").classList.toggle("x",t.checked);save();nav();prog()});
 nav();prog();view();
